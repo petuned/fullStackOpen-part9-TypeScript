@@ -8,7 +8,7 @@ import {
   Typography,
   TableCell,
   TableRow,
-  TableBody,
+  TableBody
 } from "@mui/material";
 import axios from "axios";
 
@@ -37,7 +37,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
 
   const submitNewPatient = async (values: PatientFormValues) => {
     try {
-      const patient = await patientService.create(values);
+      const patient = await patientService.createPatient(values);
       setPatients(patients.concat(patient));
       setModalOpen(false);
     } catch (e: unknown) {
