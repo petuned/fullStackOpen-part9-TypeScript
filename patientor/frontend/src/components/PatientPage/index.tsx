@@ -1,14 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Diagnosis, EntryWithoutId, Patient } from "../../types";
 import { useEffect, useState } from "react";
-import {
-  Container,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Typography
-} from "@mui/material";
+import { Alert, Container, DialogContent, Typography } from "@mui/material";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 import patientService from "../../services/patients";
@@ -21,7 +14,7 @@ interface PatientProps {
 
 const PatientPage = ({ diagnoses }: PatientProps) => {
   const [patient, setPatient] = useState<Patient | null>(null);
-  const [entryType, setEntryType] = useState("");
+  const [error, setError] = useState<string>();
   const params = useParams();
 
   useEffect(() => {
@@ -31,20 +24,30 @@ const PatientPage = ({ diagnoses }: PatientProps) => {
         .then((result) => {
           setPatient(result);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          error.response.data.error
+            ? setError(error.response.data.error)
+            : setError("unknown error");
+          setTimeout(() => setError(undefined), 10000);
+        });
     }
   }, [params.id]);
 
-  const handleEntryChange = (e: SelectChangeEvent<string>) => {
-    e.preventDefault();
-    setEntryType(e.target.value);
-  };
-
   const addEntry = (entry: EntryWithoutId) => {
     if (patient) {
-      patientService.createEntry(patient?.id, entry).then((result) => {
-        console.log("Saatu vastaus ku lähetettii entry: ", result);
-      });
+      patientService
+        .createEntry(patient?.id, entry)
+        .then((result) => {
+          setPatient({ ...patient, entries: [...patient.entries, result] });
+        })
+        .catch((error) => {
+          console.log(error);
+          error.response.data.error
+            ? setError(error.response.data.error)
+            : setError("unknown error");
+          setTimeout(() => setError(undefined), 10000);
+        });
     }
   };
 
@@ -62,18 +65,10 @@ const PatientPage = ({ diagnoses }: PatientProps) => {
           <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
             occupation: {patient.occupation}
           </Typography>
-          <InputLabel id="entry-type-select">Entry type</InputLabel>
-          <Select
-            value={entryType}
-            onChange={handleEntryChange}
-            style={{ minWidth: "20%" }}
-            required
-          >
-            <MenuItem value={"hospital"}>Hospital</MenuItem>
-            <MenuItem value={"occupational"}>Occupational</MenuItem>
-            <MenuItem value={"healthCheck"}>Health check</MenuItem>
-          </Select>
-          <EntryForm entryType={entryType} addEntry={addEntry} />
+          <DialogContent>
+            {error && <Alert severity="error">{error}</Alert>}
+          </DialogContent>
+          <EntryForm addEntry={addEntry} diagnoses={diagnoses} />
           <Typography
             variant="h4"
             style={{ marginBottom: "0.5em", marginTop: "0.5em" }}

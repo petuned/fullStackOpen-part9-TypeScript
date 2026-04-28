@@ -12,18 +12,20 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { SyntheticEvent, useState } from "react";
-import { EntryWithoutId, HealthCheckRating } from "../../types";
+import { Diagnosis, EntryWithoutId, HealthCheckRating } from "../../types";
+import { Link } from "react-router-dom";
 
 interface Props {
-  entryType: string;
   addEntry(entry: EntryWithoutId): void;
+  diagnoses: Diagnosis[];
 }
 
-const EntryForm = ({ entryType, addEntry }: Props) => {
+const EntryForm = ({ addEntry, diagnoses }: Props) => {
+  const [entryType, setEntryType] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Dayjs | null>(dayjs(Date.now()));
   const [specialist, setSpecialist] = useState("");
-  const [codes, setCodes] = useState("");
+  const [codes, setCodes] = useState<string[]>([]);
   const [rating, setRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
   const [dischargeDate, setDischargeDate] = useState<Dayjs | null>(
     dayjs(Date.now())
@@ -38,28 +40,28 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
     setRating(Number(e.target.value));
   };
 
-  const getEntryDetails = () => {
+  const getEntryDetails = (): EntryWithoutId => {
     const entry = {
       description: description,
       date: dayjs(date).format("YYYY-MM-DD"),
       specialist: specialist,
-      diagnosisCodes: codes?.split(",")
+      diagnosisCodes: codes
     };
     switch (entryType) {
-      case "hospital":
+      case "Hospital":
         return {
           ...entry,
-          type: "Hospital",
+          type: entryType,
           discharge: {
             date: dayjs(dischargeDate).format("YYYY-MM-DD"),
             criteria: criteria
           }
         };
-      case "occupational":
+      case "OccupationalHealthcare":
         if (startDate && endDate) {
           return {
             ...entry,
-            type: "OccupationalHealthcare",
+            type: entryType,
             employerName: employer,
             sickLeave: {
               startDate: dayjs(startDate).format("YYYY-MM-DD"),
@@ -69,14 +71,14 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
         } else {
           return {
             ...entry,
-            type: "OccupationalHealthcare",
+            type: entryType,
             employerName: employer
           };
         }
-      case "healthCheck":
+      case "HealthCheck":
         return {
           ...entry,
-          type: "HealthCheck",
+          type: entryType,
           healthCheckRating: rating
         };
       default:
@@ -86,15 +88,13 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
-
     const fullEntry = getEntryDetails();
-    console.log("Koko entry: ", fullEntry);
     addEntry(fullEntry);
   };
 
   const getTypeInputs = () => {
     switch (entryType) {
-      case "hospital":
+      case "Hospital":
         return (
           <>
             <InputLabel style={{ marginTop: 20 }}>Discharge:</InputLabel>
@@ -114,7 +114,7 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
             />
           </>
         );
-      case "occupational":
+      case "OccupationalHealthcare":
         return (
           <>
             <TextField
@@ -139,7 +139,7 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
             </LocalizationProvider>
           </>
         );
-      case "healthCheck":
+      case "HealthCheck":
         return (
           <>
             <InputLabel style={{ marginTop: 20 }}>Health rating</InputLabel>
@@ -179,6 +179,17 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
         }}
         onSubmit={handleSubmit}
       >
+        <InputLabel id="entry-type-select">Entry type *</InputLabel>
+        <Select
+          value={entryType}
+          onChange={(e) => setEntryType(e.target.value)}
+          style={{ minWidth: "20%" }}
+          required
+        >
+          <MenuItem value={"Hospital"}>Hospital</MenuItem>
+          <MenuItem value={"OccupationalHealthcare"}>Occupational</MenuItem>
+          <MenuItem value={"HealthCheck"}>Health check</MenuItem>
+        </Select>
         <TextField
           label="Description"
           fullWidth
@@ -200,17 +211,32 @@ const EntryForm = ({ entryType, addEntry }: Props) => {
           value={specialist}
           onChange={({ target }) => setSpecialist(target.value)}
         />
-        <TextField
-          label="Diagnoses codes, separated by comma"
-          fullWidth
+        <InputLabel id="entry-type-select">Diagnoses</InputLabel>
+        <Select
+          multiple
           value={codes}
-          onChange={({ target }) => setCodes(target.value)}
-        />
+          label="Diagnoses"
+          onChange={({ target }) =>
+            setCodes(
+              typeof target.value === "string"
+                ? target.value.split(",")
+                : target.value
+            )
+          }
+        >
+          {diagnoses.map((diagnosis) => (
+            <MenuItem key={diagnosis.code} value={diagnosis.code}>
+              {diagnosis.code} {diagnosis.name}
+            </MenuItem>
+          ))}
+        </Select>
         {getTypeInputs()}
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Button color="secondary" variant="contained" type="button">
-            Cancel
-          </Button>
+          <Link to="/">
+            <Button color="secondary" variant="contained" type="button">
+              Cancel
+            </Button>
+          </Link>
           <Button type="submit" variant="contained">
             Add
           </Button>

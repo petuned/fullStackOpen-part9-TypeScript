@@ -38,23 +38,19 @@ router.get("/:id", (req, res: Response<Patient>) => {
   res.json(data);
 });
 
-router.post(
-  "/",
-  newPatientParser,
-  (req: Request<NewPatient>, res: Response) => {
-    try {
-      const patient = newPatientSchema.parse(req.body);
-      const savedPatient = patientService.addNewPatient(patient);
-      res.json(savedPatient);
-    } catch (error: unknown) {
-      if (error instanceof z.ZodError) {
-        res.status(400).send({ error: error.issues });
-      } else {
-        res.status(400).send({ error: "unknown error" });
-      }
+router.post("/", newPatientParser, (req: Request<NewPatient>, res: Response) => {
+  try {
+    const patient = newPatientSchema.parse(req.body);
+    const savedPatient = patientService.addNewPatient(patient);
+    res.json(savedPatient);
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      res.status(400).send({ error: error.issues });
+    } else {
+      res.status(400).send({ error: "unknown error" });
     }
   }
-);
+});
 
 router.post("/:id/entries", (req, res: Response) => {
   try {
@@ -63,7 +59,11 @@ router.post("/:id/entries", (req, res: Response) => {
     res.json(savedEntry);
   } catch (error: unknown) {
     console.log(error);
-    res.status(400).send({ error: "unknown error" });
+    if (error instanceof Error) {
+      res.status(400).send({ error: error.message });
+    } else {
+      res.status(400).send({ error: "Unknown error" });
+    }
   }
 });
 
