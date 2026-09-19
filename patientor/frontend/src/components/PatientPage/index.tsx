@@ -2,8 +2,8 @@ import { useParams } from "react-router-dom";
 import { Diagnosis, EntryWithoutId, Patient } from "../../types";
 import { useEffect, useState } from "react";
 import { Alert, Container, DialogContent, Typography } from "@mui/material";
-import FemaleIcon from "@mui/icons-material/Female";
-import MaleIcon from "@mui/icons-material/Male";
+import { Woman } from "@mui/icons-material";
+import { Man } from "@mui/icons-material";
 import patientService from "../../services/patients";
 import EntryInfo from "./EntryInfo";
 import EntryForm from "./EntryForm";
@@ -58,7 +58,7 @@ const PatientPage = ({ diagnoses }: PatientProps) => {
           <Typography variant="h4" style={{ marginBottom: "0.5em" }}>
             {patient.name}
           </Typography>
-          {patient.gender === "female" ? <FemaleIcon /> : <MaleIcon />}
+          {patient.gender === "female" ? <Woman /> : <Man />}
           <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
             ssn: {patient.ssn}
           </Typography>

@@ -49,6 +49,8 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
           );
           console.error(message);
           setError(message);
+        } else if (e.response?.data.error) {
+          setError(e.response?.data.error);
         } else {
           setError("Unrecognized axios error");
         }

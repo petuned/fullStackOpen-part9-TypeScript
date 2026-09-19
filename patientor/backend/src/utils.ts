@@ -2,10 +2,10 @@ import { Diagnosis, EntryWithoutId, Gender, HealthCheckRating } from "./types";
 import { z } from "zod";
 
 const newPatientSchema = z.object({
-  name: z.string().trim().min(1),
+  name: z.string().trim().min(1, "Name must be at least one character long"),
   dateOfBirth: z.iso.date(),
-  ssn: z.string().trim().min(10),
-  gender: z.enum(Gender),
+  ssn: z.string().trim().min(10, "SSN must be at least 10 characters long"),
+  gender: z.enum(Gender, "Gender must be male, female or other"),
   occupation: z.string()
 });
 

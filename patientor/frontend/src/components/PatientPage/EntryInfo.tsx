@@ -1,8 +1,8 @@
 import { Container, Typography } from "@mui/material";
 import { Diagnosis, Entry } from "../../types";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import WorkIcon from "@mui/icons-material/Work";
+import { LocalHospitalOutlined } from "@mui/icons-material";
+import { CheckCircleOutline } from "@mui/icons-material";
+import { Work } from "@mui/icons-material";
 
 interface Props {
   entry: Entry;
@@ -35,7 +35,7 @@ const EntryInfo = ({ entry, diagnoses }: Props) => {
         return (
           <>
             <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
-              <WorkIcon />
+              <Work />
               Occupational: {entry.employerName}
             </Typography>
             {entry.sickLeave ? (
@@ -50,7 +50,7 @@ const EntryInfo = ({ entry, diagnoses }: Props) => {
         return (
           <>
             <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
-              <LocalHospitalIcon />
+              <LocalHospitalOutlined />
               Hospital
             </Typography>
             <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
@@ -62,7 +62,7 @@ const EntryInfo = ({ entry, diagnoses }: Props) => {
         return (
           <>
             <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
-              <CheckCircleOutlineIcon />
+              <CheckCircleOutline />
               Health check
             </Typography>
             <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
@@ -82,7 +82,7 @@ const EntryInfo = ({ entry, diagnoses }: Props) => {
         paddingTop: "1em",
         paddingBottom: "1em",
         border: "solid",
-        borderRadius: "1em",
+        borderRadius: "1em"
       }}
     >
       <Typography variant="body1" style={{ marginBottom: "0.5em" }}>
